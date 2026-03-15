@@ -1,0 +1,108 @@
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 1 0 0;
+    --foreground: 0.2 0.01 260;
+    --card: 1 0 0;
+    --card-foreground: 0.2 0.01 260;
+    --popover: 1 0 0;
+    --popover-foreground: 0.2 0.01 260;
+    --primary: 0.28 0.09 258;
+    --primary-foreground: 1 0 0;
+    --secondary: 0.95 0.01 260;
+    --secondary-foreground: 0.28 0.09 258;
+    --muted: 0.96 0.005 260;
+    --muted-foreground: 0.5 0.02 260;
+    --accent: 0.72 0.13 82;
+    --accent-foreground: 0.15 0.01 260;
+    --destructive: 0.55 0.22 27;
+    --destructive-foreground: 1 0 0;
+    --border: 0.88 0.015 260;
+    --input: 0.88 0.015 260;
+    --ring: 0.72 0.13 82;
+    --radius: 0.5rem;
+    --chart-1: 0.28 0.09 258;
+    --chart-2: 0.72 0.13 82;
+    --chart-3: 0.5 0.15 200;
+    --chart-4: 0.6 0.12 145;
+    --chart-5: 0.65 0.14 30;
+    --sidebar: 0.28 0.09 258;
+    --sidebar-foreground: 1 0 0;
+    --sidebar-primary: 0.72 0.13 82;
+    --sidebar-primary-foreground: 0.15 0.01 260;
+    --sidebar-accent: 0.35 0.08 258;
+    --sidebar-accent-foreground: 1 0 0;
+    --sidebar-border: 0.35 0.06 258;
+    --sidebar-ring: 0.72 0.13 82;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Plus Jakarta Sans", sans-serif;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Playfair Display", serif;
+  }
+}
+
+@layer utilities {
+  .text-gold {
+    color: oklch(var(--accent));
+  }
+  .bg-navy {
+    background-color: oklch(var(--primary));
+  }
+  .bg-gold {
+    background-color: oklch(var(--accent));
+  }
+  .border-gold {
+    border-color: oklch(var(--accent));
+  }
+  .hero-overlay {
+    background: linear-gradient(
+      135deg,
+      oklch(0.18 0.1 258 / 0.92) 0%,
+      oklch(0.28 0.09 258 / 0.75) 60%,
+      oklch(0.28 0.09 258 / 0.5) 100%
+    );
+  }
+  .section-divider {
+    height: 4px;
+    background: linear-gradient(
+      90deg,
+      oklch(var(--primary)),
+      oklch(var(--accent)),
+      oklch(var(--primary))
+    );
+  }
+  .card-hover {
+    @apply transition-all duration-300;
+  }
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px oklch(0.28 0.09 258 / 0.15);
+  }
+  .nav-link-active {
+    color: oklch(var(--accent)) !important;
+    border-bottom: 2px solid oklch(var(--accent));
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
