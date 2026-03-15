@@ -75,11 +75,11 @@ export default function Contact() {
                   content:
                     "46, Italgacha Road, Dumdum Airport Gate No.1 Bus Stand, Kolkata – 700028, West Bengal, India",
                 },
-                { icon: Phone, title: "Phone", content: "+91 98765 43210" },
+                { icon: Phone, title: "Phone", content: "+91 8158937841" },
                 {
                   icon: Mail,
                   title: "Email",
-                  content: "info@klsacademy.edu.in",
+                  content: "klsacademy@rediffmail.com",
                 },
                 {
                   icon: Clock,

@@ -86,3 +86,17 @@ export function useSubmitContactMessage() {
     },
   });
 }
+
+export function useAddResult() {
+  const { actor } = useActor();
+  return useMutation({
+    mutationFn: async (data: {
+      rollNumber: string;
+      marks: number;
+      status: string;
+    }) => {
+      if (!actor) throw new Error("Not connected");
+      return actor.addResult(data.rollNumber, BigInt(data.marks), data.status);
+    },
+  });
+}

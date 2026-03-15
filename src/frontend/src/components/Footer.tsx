@@ -83,11 +83,11 @@ export default function Footer() {
               </li>
               <li className="flex gap-2.5 text-sm text-white/70">
                 <Phone className="w-4 h-4 text-gold shrink-0" />
-                <span>+91 98765 43210</span>
+                <span>+91 8158937841</span>
               </li>
               <li className="flex gap-2.5 text-sm text-white/70">
                 <Mail className="w-4 h-4 text-gold shrink-0" />
-                <span>info@klsacademy.edu.in</span>
+                <span>klsacademy@rediffmail.com</span>
               </li>
             </ul>
           </div>

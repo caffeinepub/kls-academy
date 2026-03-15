@@ -10,6 +10,7 @@ import {
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
 import About from "./pages/About";
+import AdminPanel from "./pages/AdminPanel";
 import Admission from "./pages/Admission";
 import Affiliation from "./pages/Affiliation";
 import Contact from "./pages/Contact";
@@ -85,6 +86,11 @@ const contactRoute = createRoute({
   path: "/contact",
   component: Contact,
 });
+const adminRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin",
+  component: AdminPanel,
+});
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -97,6 +103,7 @@ const routeTree = rootRoute.addChildren([
   verificationRoute,
   paymentRoute,
   contactRoute,
+  adminRoute,
 ]);
 
 const router = createRouter({ routeTree });

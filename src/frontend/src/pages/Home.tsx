@@ -145,34 +145,34 @@ const affiliations = [
 
 const sampleNotices = [
   {
-    title: "Admission Open 2024–25",
+    title: "Admission Open 2026–27",
     content:
-      "Applications are now open for all UG, PG, and Ph.D programs. Last date: 31st August 2024.",
-    date: "2024-07-01",
+      "Applications are now open for all UG, PG, and Ph.D programs. Last date: 31st August 2026.",
+    date: "2026-07-01",
   },
   {
     title: "Examination Schedule Released",
     content:
-      "Semester examinations for all courses will commence from 15th September 2024.",
-    date: "2024-07-05",
+      "Semester examinations for all courses will commence from 15th September 2026.",
+    date: "2026-07-05",
   },
   {
     title: "New Batch – LLB Program",
     content:
-      "A new batch for the 5-year integrated LLB program starts from 1st August 2024.",
-    date: "2024-07-10",
+      "A new batch for the 5-year integrated LLB program starts from 1st August 2026.",
+    date: "2026-07-10",
   },
   {
     title: "Scholarship Applications Open",
     content:
-      "Merit-based scholarships available for deserving students. Apply by 20th July 2024.",
-    date: "2024-07-12",
+      "Merit-based scholarships available for deserving students. Apply by 20th July 2026.",
+    date: "2026-07-12",
   },
   {
     title: "Guest Lecture Series",
     content:
       "Eminent legal practitioners to deliver guest lectures at KLS Academy campus.",
-    date: "2024-07-15",
+    date: "2026-07-15",
   },
 ];
 
@@ -202,7 +202,7 @@ export default function Home() {
             className="max-w-2xl"
           >
             <Badge className="mb-4 bg-gold text-navy-dark border-0 font-semibold">
-              Admissions Open 2024–25
+              Admissions Open 2026–27
             </Badge>
             <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">
               Welcome to
@@ -570,7 +570,7 @@ export default function Home() {
                     <Phone className="w-5 h-5 text-gold shrink-0" />
                     <div>
                       <p className="text-xs text-white/50 mb-1">Phone</p>
-                      <p className="text-sm text-white/85">+91 98765 43210</p>
+                      <p className="text-sm text-white/85">+91 8158937841</p>
                     </div>
                   </div>
                   <div className="flex gap-3">
@@ -578,7 +578,7 @@ export default function Home() {
                     <div>
                       <p className="text-xs text-white/50 mb-1">Email</p>
                       <p className="text-sm text-white/85">
-                        info@klsacademy.edu.in
+                        klsacademy@rediffmail.com
                       </p>
                     </div>
                   </div>

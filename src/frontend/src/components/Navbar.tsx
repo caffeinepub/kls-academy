@@ -38,8 +38,8 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 bg-navy shadow-lg">
       {/* Top bar */}
       <div className="bg-gold py-1.5 px-4 text-center text-sm font-medium text-navy-dark hidden md:block">
-        🎓 Admissions Open 2024–25 | Call: +91 98765 43210 |
-        info@klsacademy.edu.in
+        🎓 Admissions Open 2026–27 | Call: +91 8158937841 |
+        klsacademy@rediffmail.com
       </div>
 
       <nav className="container mx-auto px-4">
