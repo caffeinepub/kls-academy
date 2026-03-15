@@ -100,3 +100,25 @@ export function useAddResult() {
     },
   });
 }
+
+export function useAddCertificate() {
+  const { actor } = useActor();
+  return useMutation({
+    mutationFn: async (data: {
+      id: string;
+      holderName: string;
+      course: string;
+      issuedDate: string;
+      verified: boolean;
+    }) => {
+      if (!actor) throw new Error("Not connected");
+      return actor.addCertificate(
+        data.id,
+        data.holderName,
+        data.course,
+        data.issuedDate,
+        data.verified,
+      );
+    },
+  });
+}

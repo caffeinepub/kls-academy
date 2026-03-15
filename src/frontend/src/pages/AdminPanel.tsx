@@ -18,7 +18,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  Award,
   Eye,
   EyeOff,
   Loader2,
@@ -30,7 +32,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useAddResult } from "../hooks/useQueries";
+import { useAddCertificate, useAddResult } from "../hooks/useQueries";
 
 const ADMIN_PASSWORD = "klsadmin2026";
 
@@ -38,6 +40,14 @@ type ResultEntry = {
   rollNumber: string;
   marks: string;
   status: string;
+};
+
+type CertEntry = {
+  id: string;
+  holderName: string;
+  course: string;
+  issuedDate: string;
+  verified: boolean;
 };
 
 export default function AdminPanel() {
@@ -50,12 +60,23 @@ export default function AdminPanel() {
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState("");
 
+  // Result state
   const [rollNumber, setRollNumber] = useState("");
   const [marks, setMarks] = useState("");
   const [status, setStatus] = useState<"Pass" | "Fail">("Pass");
   const [uploadedResults, setUploadedResults] = useState<ResultEntry[]>([]);
 
-  const { mutateAsync: addResult, isPending } = useAddResult();
+  // Certificate state
+  const [certId, setCertId] = useState("");
+  const [certHolder, setCertHolder] = useState("");
+  const [certCourse, setCertCourse] = useState("");
+  const [certDate, setCertDate] = useState("");
+  const [certVerified, setCertVerified] = useState<"true" | "false">("true");
+  const [uploadedCerts, setUploadedCerts] = useState<CertEntry[]>([]);
+
+  const { mutateAsync: addResult, isPending: resultPending } = useAddResult();
+  const { mutateAsync: addCertificate, isPending: certPending } =
+    useAddCertificate();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,7 +89,7 @@ export default function AdminPanel() {
     }
   };
 
-  const handleUpload = async (e: React.FormEvent) => {
+  const handleUploadResult = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!rollNumber.trim()) {
       toast.error("Roll number is required");
@@ -78,7 +99,6 @@ export default function AdminPanel() {
       toast.error("Enter valid marks");
       return;
     }
-
     try {
       await addResult({
         rollNumber: rollNumber.trim(),
@@ -95,6 +115,53 @@ export default function AdminPanel() {
       setStatus("Pass");
     } catch {
       toast.error("Failed to upload result. Please try again.");
+    }
+  };
+
+  const handleUploadCert = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!certId.trim()) {
+      toast.error("Certificate ID is required");
+      return;
+    }
+    if (!certHolder.trim()) {
+      toast.error("Holder name is required");
+      return;
+    }
+    if (!certCourse.trim()) {
+      toast.error("Course name is required");
+      return;
+    }
+    if (!certDate.trim()) {
+      toast.error("Issued date is required");
+      return;
+    }
+    try {
+      await addCertificate({
+        id: certId.trim(),
+        holderName: certHolder.trim(),
+        course: certCourse.trim(),
+        issuedDate: certDate.trim(),
+        verified: certVerified === "true",
+      });
+      setUploadedCerts((prev) => [
+        {
+          id: certId.trim(),
+          holderName: certHolder.trim(),
+          course: certCourse.trim(),
+          issuedDate: certDate.trim(),
+          verified: certVerified === "true",
+        },
+        ...prev,
+      ]);
+      toast.success(`Certificate issued for ${certHolder.trim()}`);
+      setCertId("");
+      setCertHolder("");
+      setCertCourse("");
+      setCertDate("");
+      setCertVerified("true");
+    } catch {
+      toast.error("Failed to issue certificate. Please try again.");
     }
   };
 
@@ -182,172 +249,361 @@ export default function AdminPanel() {
             Admin Panel
           </Badge>
           <h1 className="font-display text-4xl font-bold text-white mb-2">
-            Result Upload
+            KLS Admin Dashboard
           </h1>
           <p className="text-white/70">
-            Upload and manage student examination results
+            Manage student results and certificates
           </p>
         </div>
       </div>
 
       <section className="py-12 bg-secondary">
-        <div className="container mx-auto px-4 max-w-3xl space-y-8">
-          {/* Upload Form */}
-          <Card className="border-0 shadow-card">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="font-display text-xl text-navy">
-                Upload New Result
-              </CardTitle>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-foreground/50 hover:text-red-500"
-                onClick={() => {
-                  setIsAuthenticated(false);
-                  setPassword("");
-                }}
-                data-ocid="admin.logout_button"
-              >
-                <LogOut className="w-4 h-4 mr-1" /> Logout
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <form
-                onSubmit={handleUpload}
-                className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end"
-              >
-                <div className="space-y-1.5">
-                  <Label>Roll Number</Label>
-                  <Input
-                    placeholder="e.g. KLS2024001"
-                    value={rollNumber}
-                    onChange={(e) => setRollNumber(e.target.value)}
-                    data-ocid="admin.result.roll_input"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label>Marks Obtained</Label>
-                  <Input
-                    type="number"
-                    placeholder="e.g. 75"
-                    value={marks}
-                    onChange={(e) => setMarks(e.target.value)}
-                    min={0}
-                    data-ocid="admin.result.marks_input"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label>Result Status</Label>
-                  <Select
-                    value={status}
-                    onValueChange={(v) => setStatus(v as "Pass" | "Fail")}
-                  >
-                    <SelectTrigger data-ocid="admin.result.status_select">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Pass">Pass</SelectItem>
-                      <SelectItem value="Fail">Fail</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="sm:col-span-3">
-                  <Button
-                    type="submit"
-                    className="w-full bg-navy text-white hover:bg-navy-light"
-                    disabled={isPending}
-                    data-ocid="admin.result.submit_button"
-                  >
-                    {isPending ? (
-                      <>
-                        <Loader2 className="mr-2 w-4 h-4 animate-spin" />{" "}
-                        Uploading...
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="mr-2 w-4 h-4" /> Upload Result
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-
-          {/* Uploaded Results Table */}
-          {uploadedResults.length > 0 && (
-            <Card className="border-0 shadow-card">
-              <CardHeader>
-                <CardTitle className="font-display text-xl text-navy">
-                  Uploaded This Session
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Table data-ocid="admin.result.table">
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>#</TableHead>
-                      <TableHead>Roll Number</TableHead>
-                      <TableHead>Marks</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead />
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {uploadedResults.map((r, i) => (
-                      <TableRow
-                        key={r.rollNumber}
-                        data-ocid={`admin.result.row.${i + 1}`}
-                      >
-                        <TableCell className="text-foreground/50">
-                          {i + 1}
-                        </TableCell>
-                        <TableCell className="font-medium">
-                          {r.rollNumber}
-                        </TableCell>
-                        <TableCell>{r.marks}</TableCell>
-                        <TableCell>
-                          <Badge
-                            className={
-                              r.status === "Pass"
-                                ? "bg-green-100 text-green-700 border-green-200"
-                                : "bg-red-100 text-red-700 border-red-200"
-                            }
-                          >
-                            {r.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-red-400 hover:text-red-600"
-                            onClick={() =>
-                              setUploadedResults((prev) =>
-                                prev.filter((_, j) => j !== i),
-                              )
-                            }
-                            data-ocid={`admin.result.delete_button.${i + 1}`}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          )}
-
-          {uploadedResults.length === 0 && (
-            <div
-              className="text-center py-10 text-foreground/40"
-              data-ocid="admin.result.empty_state"
+        <div className="container mx-auto px-4 max-w-3xl">
+          <div className="flex justify-end mb-6">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-foreground/50 hover:text-red-500"
+              onClick={() => {
+                setIsAuthenticated(false);
+                setPassword("");
+              }}
+              data-ocid="admin.logout_button"
             >
-              No results uploaded yet in this session.
-            </div>
-          )}
+              <LogOut className="w-4 h-4 mr-1" /> Logout
+            </Button>
+          </div>
+
+          <Tabs defaultValue="results" data-ocid="admin.tab">
+            <TabsList className="w-full mb-8">
+              <TabsTrigger
+                value="results"
+                className="flex-1"
+                data-ocid="admin.results.tab"
+              >
+                Result Upload
+              </TabsTrigger>
+              <TabsTrigger
+                value="certificates"
+                className="flex-1"
+                data-ocid="admin.certificates.tab"
+              >
+                <Award className="w-4 h-4 mr-1" /> Certificate Management
+              </TabsTrigger>
+            </TabsList>
+
+            {/* ─── Results Tab ─── */}
+            <TabsContent value="results" className="space-y-8">
+              <Card className="border-0 shadow-card">
+                <CardHeader>
+                  <CardTitle className="font-display text-xl text-navy">
+                    Upload New Result
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <form
+                    onSubmit={handleUploadResult}
+                    className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end"
+                  >
+                    <div className="space-y-1.5">
+                      <Label>Roll Number</Label>
+                      <Input
+                        placeholder="e.g. KLS2024001"
+                        value={rollNumber}
+                        onChange={(e) => setRollNumber(e.target.value)}
+                        data-ocid="admin.result.roll_input"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>Marks Obtained</Label>
+                      <Input
+                        type="number"
+                        placeholder="e.g. 75"
+                        value={marks}
+                        onChange={(e) => setMarks(e.target.value)}
+                        min={0}
+                        data-ocid="admin.result.marks_input"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>Result Status</Label>
+                      <Select
+                        value={status}
+                        onValueChange={(v) => setStatus(v as "Pass" | "Fail")}
+                      >
+                        <SelectTrigger data-ocid="admin.result.status_select">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Pass">Pass</SelectItem>
+                          <SelectItem value="Fail">Fail</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="sm:col-span-3">
+                      <Button
+                        type="submit"
+                        className="w-full bg-navy text-white hover:bg-navy-light"
+                        disabled={resultPending}
+                        data-ocid="admin.result.submit_button"
+                      >
+                        {resultPending ? (
+                          <>
+                            <Loader2 className="mr-2 w-4 h-4 animate-spin" />{" "}
+                            Uploading...
+                          </>
+                        ) : (
+                          <>
+                            <Plus className="mr-2 w-4 h-4" /> Upload Result
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </form>
+                </CardContent>
+              </Card>
+
+              {uploadedResults.length > 0 ? (
+                <Card className="border-0 shadow-card">
+                  <CardHeader>
+                    <CardTitle className="font-display text-xl text-navy">
+                      Uploaded This Session
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Table data-ocid="admin.result.table">
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>#</TableHead>
+                          <TableHead>Roll Number</TableHead>
+                          <TableHead>Marks</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead />
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {uploadedResults.map((r, i) => (
+                          <TableRow
+                            key={r.rollNumber}
+                            data-ocid={`admin.result.row.${i + 1}`}
+                          >
+                            <TableCell className="text-foreground/50">
+                              {i + 1}
+                            </TableCell>
+                            <TableCell className="font-medium">
+                              {r.rollNumber}
+                            </TableCell>
+                            <TableCell>{r.marks}</TableCell>
+                            <TableCell>
+                              <Badge
+                                className={
+                                  r.status === "Pass"
+                                    ? "bg-green-100 text-green-700 border-green-200"
+                                    : "bg-red-100 text-red-700 border-red-200"
+                                }
+                              >
+                                {r.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-red-400 hover:text-red-600"
+                                onClick={() =>
+                                  setUploadedResults((prev) =>
+                                    prev.filter((_, j) => j !== i),
+                                  )
+                                }
+                                data-ocid={`admin.result.delete_button.${i + 1}`}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div
+                  className="text-center py-10 text-foreground/40"
+                  data-ocid="admin.result.empty_state"
+                >
+                  No results uploaded yet in this session.
+                </div>
+              )}
+            </TabsContent>
+
+            {/* ─── Certificates Tab ─── */}
+            <TabsContent value="certificates" className="space-y-8">
+              <Card className="border-0 shadow-card">
+                <CardHeader>
+                  <CardTitle className="font-display text-xl text-navy">
+                    Issue New Certificate
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <form
+                    onSubmit={handleUploadCert}
+                    className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end"
+                  >
+                    <div className="space-y-1.5">
+                      <Label>Certificate ID</Label>
+                      <Input
+                        placeholder="e.g. CERT2026001"
+                        value={certId}
+                        onChange={(e) => setCertId(e.target.value)}
+                        data-ocid="admin.cert.id_input"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>Holder Name</Label>
+                      <Input
+                        placeholder="Student full name"
+                        value={certHolder}
+                        onChange={(e) => setCertHolder(e.target.value)}
+                        data-ocid="admin.cert.holder_input"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>Course / Program</Label>
+                      <Input
+                        placeholder="e.g. LLB, Paramedical"
+                        value={certCourse}
+                        onChange={(e) => setCertCourse(e.target.value)}
+                        data-ocid="admin.cert.course_input"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>Issued Date</Label>
+                      <Input
+                        type="date"
+                        value={certDate}
+                        onChange={(e) => setCertDate(e.target.value)}
+                        data-ocid="admin.cert.date_input"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>Verification Status</Label>
+                      <Select
+                        value={certVerified}
+                        onValueChange={(v) =>
+                          setCertVerified(v as "true" | "false")
+                        }
+                      >
+                        <SelectTrigger data-ocid="admin.cert.status_select">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="true">Verified</SelectItem>
+                          <SelectItem value="false">Unverified</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex items-end">
+                      <Button
+                        type="submit"
+                        className="w-full bg-navy text-white hover:bg-navy-light"
+                        disabled={certPending}
+                        data-ocid="admin.cert.submit_button"
+                      >
+                        {certPending ? (
+                          <>
+                            <Loader2 className="mr-2 w-4 h-4 animate-spin" />{" "}
+                            Issuing...
+                          </>
+                        ) : (
+                          <>
+                            <Award className="mr-2 w-4 h-4" /> Issue Certificate
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </form>
+                </CardContent>
+              </Card>
+
+              {uploadedCerts.length > 0 ? (
+                <Card className="border-0 shadow-card">
+                  <CardHeader>
+                    <CardTitle className="font-display text-xl text-navy">
+                      Issued This Session
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Table data-ocid="admin.cert.table">
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>#</TableHead>
+                          <TableHead>Cert ID</TableHead>
+                          <TableHead>Holder</TableHead>
+                          <TableHead>Course</TableHead>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead />
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {uploadedCerts.map((c, i) => (
+                          <TableRow
+                            key={c.id}
+                            data-ocid={`admin.cert.row.${i + 1}`}
+                          >
+                            <TableCell className="text-foreground/50">
+                              {i + 1}
+                            </TableCell>
+                            <TableCell className="font-mono text-sm">
+                              {c.id}
+                            </TableCell>
+                            <TableCell className="font-medium">
+                              {c.holderName}
+                            </TableCell>
+                            <TableCell>{c.course}</TableCell>
+                            <TableCell>{c.issuedDate}</TableCell>
+                            <TableCell>
+                              <Badge
+                                className={
+                                  c.verified
+                                    ? "bg-green-100 text-green-700 border-green-200"
+                                    : "bg-yellow-100 text-yellow-700 border-yellow-200"
+                                }
+                              >
+                                {c.verified ? "Verified" : "Unverified"}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-red-400 hover:text-red-600"
+                                onClick={() =>
+                                  setUploadedCerts((prev) =>
+                                    prev.filter((_, j) => j !== i),
+                                  )
+                                }
+                                data-ocid={`admin.cert.delete_button.${i + 1}`}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div
+                  className="text-center py-10 text-foreground/40"
+                  data-ocid="admin.cert.empty_state"
+                >
+                  No certificates issued yet in this session.
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         </div>
       </section>
     </div>
