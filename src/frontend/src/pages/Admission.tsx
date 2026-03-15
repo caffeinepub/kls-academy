@@ -28,9 +28,12 @@ const courses = [
   "Short-Term Certification Courses",
 ];
 
+const ADMIN_EMAIL = "klsacademy@rediffmail.com";
+const SEP = "==========================================\n";
+
 export default function Admission() {
   useEffect(() => {
-    document.title = "Admission – KLS Academy";
+    document.title = "Admission - KLS Academy";
   }, []);
   const { mutateAsync, isPending } = useSubmitApplication();
   const [submitted, setSubmitted] = useState(false);
@@ -64,8 +67,24 @@ export default function Admission() {
     }
     try {
       await mutateAsync(form);
+      const subject = encodeURIComponent(
+        `Admission Application - ${form.name} (2026-2027)`,
+      );
+      const body = encodeURIComponent(
+        `New Admission Application Received\n${SEP}` +
+          `Full Name    : ${form.name}\n` +
+          `Email        : ${form.email}\n` +
+          `Phone        : ${form.phone}\n` +
+          `Date of Birth: ${form.dob}\n` +
+          `Course       : ${form.course}\n` +
+          `Address      : ${form.address}\n` +
+          `${SEP}Submitted on : ${new Date().toLocaleString()}`,
+      );
+      window.location.href = `mailto:${ADMIN_EMAIL}?subject=${subject}&body=${body}`;
       setSubmitted(true);
-      toast.success("Application submitted successfully!");
+      toast.success(
+        "Application submitted! Your email client will open to send the details.",
+      );
     } catch {
       toast.error("Failed to submit. Please try again.");
     }
@@ -100,12 +119,23 @@ export default function Admission() {
                   Application Submitted!
                 </h2>
                 <p className="text-foreground/70">
-                  Your application has been received. We will contact you
-                  shortly on the provided email/phone.
+                  Your application has been received. Your email client has been
+                  opened to send the details to <strong>{ADMIN_EMAIL}</strong>.
+                  Please send the email to complete your application.
                 </p>
                 <Button
                   className="mt-6 bg-navy text-white"
-                  onClick={() => setSubmitted(false)}
+                  onClick={() => {
+                    setSubmitted(false);
+                    setForm({
+                      name: "",
+                      email: "",
+                      phone: "",
+                      dob: "",
+                      course: "",
+                      address: "",
+                    });
+                  }}
                 >
                   Submit Another
                 </Button>

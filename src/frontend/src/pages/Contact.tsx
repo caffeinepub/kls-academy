@@ -17,9 +17,12 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useSubmitContactMessage } from "../hooks/useQueries";
 
+const ADMIN_EMAIL = "klsacademy@rediffmail.com";
+const SEP = "==========================================\n";
+
 export default function Contact() {
   useEffect(() => {
-    document.title = "Contact Us – KLS Academy";
+    document.title = "Contact Us - KLS Academy";
   }, []);
   const { mutateAsync, isPending } = useSubmitContactMessage();
   const [submitted, setSubmitted] = useState(false);
@@ -39,8 +42,21 @@ export default function Contact() {
     }
     try {
       await mutateAsync(form);
+      const subject = encodeURIComponent(
+        `Contact Message from ${form.name} - KLS Academy`,
+      );
+      const body = encodeURIComponent(
+        `New Contact Message Received\n${SEP}` +
+          `Name    : ${form.name}\n` +
+          `Email   : ${form.email}\n` +
+          `Message : ${form.message}\n` +
+          `${SEP}Submitted on: ${new Date().toLocaleString()}`,
+      );
+      window.location.href = `mailto:${ADMIN_EMAIL}?subject=${subject}&body=${body}`;
       setSubmitted(true);
-      toast.success("Message sent successfully!");
+      toast.success(
+        "Message sent! Your email client will open to deliver the message.",
+      );
     } catch {
       toast.error("Failed to send. Please try again.");
     }
@@ -66,14 +82,13 @@ export default function Contact() {
       <section className="py-16 bg-secondary">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Contact Info */}
             <div className="space-y-4">
               {[
                 {
                   icon: MapPin,
                   title: "Address",
                   content:
-                    "46, Italgacha Road, Dumdum Airport Gate No.1 Bus Stand, Kolkata – 700028, West Bengal, India",
+                    "46, Italgacha Road, Dumdum Airport Gate No.1 Bus Stand, Kolkata - 700028, West Bengal, India",
                 },
                 { icon: Phone, title: "Phone", content: "+91 8158937841" },
                 {
@@ -84,7 +99,7 @@ export default function Contact() {
                 {
                   icon: Clock,
                   title: "Office Hours",
-                  content: "Mon–Sat: 9:00 AM – 6:00 PM | Sunday: Closed",
+                  content: "Mon-Sat: 9:00 AM - 6:00 PM | Sunday: Closed",
                 },
               ].map(({ icon: Icon, title, content }) => (
                 <Card key={title} className="border-0 shadow-sm">
@@ -104,18 +119,16 @@ export default function Contact() {
                 </Card>
               ))}
 
-              {/* Map placeholder */}
               <Card className="border-0 shadow-sm overflow-hidden">
                 <div className="w-full h-40 bg-navy/10 flex flex-col items-center justify-center gap-2">
                   <MapPin className="w-8 h-8 text-gold" />
                   <p className="text-sm text-foreground/60 text-center px-4">
-                    46, Italgacha Road, Dumdum, Kolkata – 700028
+                    46, Italgacha Road, Dumdum, Kolkata - 700028
                   </p>
                 </div>
               </Card>
             </div>
 
-            {/* Contact Form */}
             <div className="lg:col-span-2">
               {submitted ? (
                 <Card
@@ -128,8 +141,10 @@ export default function Contact() {
                       Message Sent!
                     </h2>
                     <p className="text-foreground/70">
-                      Thank you for contacting us. We will get back to you
-                      within 24 hours.
+                      Thank you for contacting us. Your email client has been
+                      opened to send the message to{" "}
+                      <strong>{ADMIN_EMAIL}</strong>. Please send the email to
+                      complete your enquiry.
                     </p>
                     <Button
                       className="mt-6 bg-navy text-white"
